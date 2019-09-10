@@ -1,6 +1,8 @@
 **面试题记录**
-# 目录
+## 目录
 -[python](#python)    
+    -[基础](#基础)
+
 -[java](#java)    
 -[计算机网络](#计算机网络)    
 -[数据库](#数据库)    
@@ -18,8 +20,8 @@
 
 
 
-# python
-## 基础
+## python
+### 基础
 装饰器（什么是AOP/面向切面编程）, python代码执行原理，
 pthon的int怎么实现的 ，`is`和`==`的区别，深拷贝-浅拷贝，read,readline和readlines，python2.7 与python3.x的区别，python自省， python 中的下划线， python字符串格式化
 
