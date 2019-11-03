@@ -1,5 +1,8 @@
+
 # MySQL笔记
-# MySQL学习笔记
+[视频来源](https://www.bilibili.com/video/av39807944/?p=4)
+
+
 
 ## 登录和退出MySQL服务器
 
@@ -13,12 +16,33 @@ exit;
 
 ## 基本语法
 
+
+
 ```mysql
+
 -- 显示所有数据库
 show databases;
 
+# 结果
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| tangxing           |
++--------------------+
+
+
+
 -- 创建数据库
 CREATE DATABASE test;
+
+mysql> CREATE DATABASE test;
+Query OK, 1 row affected (0.00 sec)
+
 
 -- 切换数据库
 use test;
@@ -36,15 +60,87 @@ CREATE TABLE pet (
     death DATE
 );
 
+#结果
+mysql>
+mysql> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| pet            |
++----------------+
+1 row in set (0.00 sec)
+
+
+
+
 -- 查看数据表结构
 -- describe pet;
 desc pet;
 
+# 结果
+mysql> describe pet;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| name    | varchar(20) | YES  |     | NULL    |       |
+| owner   | varchar(20) | YES  |     | NULL    |       |
+| species | varchar(20) | YES  |     | NULL    |       |
+| sex     | char(1)     | YES  |     | NULL    |       |
+| birth   | date        | YES  |     | NULL    |       |
+| death   | date        | YES  |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+6 rows in set (0.02 sec)
+
+
+
+
 -- 查询表
 SELECT * from pet;
 
+mysql> SELECT * from pet;
+Empty set (0.00 sec)
+
+
 -- 插入数据
 INSERT INTO pet VALUES ('puffball', 'Diane', 'hamster', 'f', '1990-03-30', NULL);
+
+
+# 再查询
+mysql> SELECT * from pet;
++----------+-------+---------+------+------------+-------+
+| name     | owner | species | sex  | birth      | death |
++----------+-------+---------+------+------------+-------+
+| puffball | Diane | hamster | f    | 1990-03-30 | NULL  |
++----------+-------+---------+------+------------+-------+
+1 row in set (0.00 sec)
+
+#再插入一条
+INSERT INTO pet VALUES('旺财','周星驰','狗','公','1990-01-01',NULL);
+
+# 结果
+mysql> select * from pet;
++----------+-----------+---------+-----+------------+-------+
+| name     | owner     | species | sex | birth      | death |
++----------+-----------+---------+-----+------------+-------+
+| 旺财     | 周星驰    | 狗      | 公  | 1990-01-01 | NULL  |
+| puffball | Diane     | hamster | f   | 1990-03-30 | NULL  |
++----------+-----------+---------+-----+------------+-------+
+2 rows in set (0.00 sec)
+
+
+# 报错
+mysql> INSERT INTO pet VALUES('旺财','周星驰','狗','公','1990-01-01',NULL);
+ERROR 1366 (HY000): Incorrect string value: '\xE6\x97\xBA\xE8\xB4\xA2' for column 'name' at row 1
+
+解决方法：把默认字符集修改为utf8就不会报错了
+alter table `pet` DEFAULT CHARACTER SET utf8,
+modify `name` varchar(20) CHARACTER SET utf8 NOT NULL,
+modify `owner` varchar(20) CHARACTER SET utf8 NOT NULL,
+modify `species` varchar(20) CHARACTER SET utf8 NOT NULL,
+modify `sex` CHAR(1) CHARACTER SET utf8 NOT NULL;
+
+
+
 
 -- 修改数据
 UPDATE pet SET name = 'squirrel' where owner = 'Diane';
@@ -66,7 +162,22 @@ DROP TABLE myorder;
 CREATE TABLE user (
     id INT PRIMARY KEY,
     name VARCHAR(20)
-);
+)DEFAULT CHARSET=utf8;
+
+# 举例
+insert into user values(1,'张三');
+insert into user values(2,'李四');
+
+
+mysql> select * from user;
++----+--------+
+| id | name   |
++----+--------+
+|  1 | 张三   |
+|  2 | 李四   |
++----+--------+
+
+
 
 -- 联合主键
 -- 联合主键中的每个字段都不能为空，并且加起来不能和已设置的联合主键重复。
@@ -83,6 +194,8 @@ CREATE TABLE user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(20)
 );
+
+
 
 -- 添加主键约束
 -- 如果忘记设置主键，还可以通过SQL语句设置（两种方式）：
@@ -130,6 +243,7 @@ ALTER TABLE user MODIFY name VARCHAR(20);
 
 ```mysql
 -- 建表时添加默认约束
+# 当我们插入字段值的时候，如果没有传值，就会使用默认值
 -- 约束某个字段的默认值
 CREATE TABLE user2 (
     id INT,
@@ -248,7 +362,7 @@ CREATE TABLE customer (
 
 ```mysql
 -- 创建数据库
-CREATE DATABASE select_test;
+CREATE DATABASE select_test CHARACTER SET utf8 COLLATE utf8_general_ci;
 -- 切换数据库
 USE select_test;
 
@@ -277,16 +391,16 @@ CREATE TABLE course (
     name VARCHAR(20) NOT NULL,
     t_no VARCHAR(20) NOT NULL, -- 教师编号
     -- 表示该 tno 来自于 teacher 表中的 no 字段值
-    FOREIGN KEY(t_no) REFERENCES teacher(no) 
+    FOREIGN KEY(t_no) REFERENCES teacher(no)
 );
 
 -- 成绩表
 CREATE TABLE score (
     s_no VARCHAR(20) NOT NULL, -- 学生编号
     c_no VARCHAR(20) NOT NULL, -- 课程号
-    degree DECIMAL,	-- 成绩
+    degree DECIMAL,    -- 成绩
     -- 表示该 s_no, c_no 分别来自于 student, course 表中的 no 字段值
-    FOREIGN KEY(s_no) REFERENCES student(no),	
+    FOREIGN KEY(s_no) REFERENCES student(no),   
     FOREIGN KEY(c_no) REFERENCES course(no),
     -- 设置 s_no, c_no 为联合主键
     PRIMARY KEY(s_no, c_no)
@@ -336,7 +450,7 @@ SELECT * FROM student;
 SELECT * FROM teacher;
 ```
 
-### 1 到 10
+### 1 到 10 查询练习
 
 ```mysql
 -- 查询 student 表的所有行
@@ -405,6 +519,7 @@ SELECT c_no, AVG(degree) FROM score GROUP BY c_no;
 ```mysql
 SELECT * FROM score;
 -- c_no 课程编号
+-- s_no 学生编号
 +------+-------+--------+
 | s_no | c_no  | degree |
 +------+-------+--------+
@@ -494,7 +609,7 @@ SELECT s_no, c_no, degree FROM score;
 ```mysql
 -- FROM...: 表示从 student, score 表中查询
 -- WHERE 的条件表示为，只有在 student.no 和 score.s_no 相等时才显示出来。
-SELECT name, c_no, degree FROM student, score 
+SELECT name, c_no, degree FROM student, score
 WHERE student.no = score.s_no;
 +-----------+-------+--------+
 | name      | c_no  | degree |
@@ -628,7 +743,7 @@ SELECT no, name FROM course;
 +-------+-----------------+
 
 -- 由于字段名存在重复，使用 "表名.字段名 as 别名" 代替。
-SELECT student.name as s_name, course.name as c_name, degree 
+SELECT student.name as s_name, course.name as c_name, degree
 FROM student, score, course
 WHERE student.NO = score.s_no
 AND score.c_no = course.no;
@@ -678,7 +793,7 @@ GROUP BY c_no;
 首先筛选出课堂号为 `3-105` ，在找出所有成绩高于 `109` 号同学的的行。
 
 ```mysql
-SELECT * FROM score 
+SELECT * FROM score
 WHERE c_no = '3-105'
 AND degree > (SELECT degree FROM score WHERE s_no = '109' AND c_no = '3-105');
 ```
@@ -723,8 +838,8 @@ SELECT NO FROM course WHERE t_no = ( SELECT NO FROM teacher WHERE NAME = '张旭
 
 ```mysql
 SELECT * FROM score WHERE c_no = (
-    SELECT no FROM course WHERE t_no = ( 
-        SELECT no FROM teacher WHERE NAME = '张旭' 
+    SELECT no FROM course WHERE t_no = (
+        SELECT no FROM teacher WHERE NAME = '张旭'
     )
 );
 ```
@@ -1273,7 +1388,7 @@ SELECT * FROM grade;
 思路是，使用区间 ( `BETWEEN` ) 查询，判断学生的成绩 ( `degree` )  在 `grade` 表的 `low` 和 `upp` 之间。
 
 ```mysql
-SELECT s_no, c_no, grade FROM score, grade 
+SELECT s_no, c_no, grade FROM score, grade
 WHERE degree BETWEEN low AND upp;
 +------+-------+-------+
 | s_no | c_no  | grade |
@@ -1538,7 +1653,7 @@ SELECT * FROM user;
 +----+------+-------+
 ```
 
-那如何将虚拟的数据真正提交到数据库中？使用 `COMMIT` : 
+那如何将虚拟的数据真正提交到数据库中？使用 `COMMIT` :
 
 ```mysql
 INSERT INTO user VALUES (2, 'b', 1000);
@@ -1569,11 +1684,11 @@ SELECT * FROM user;
 >
 > 2. **手动提交**
 >
->    `@@AUTOCOMMIT = 0` 时，使用 `COMMIT` 命令提交事务。
+> `@@AUTOCOMMIT = 0` 时，使用 `COMMIT` 命令提交事务。
 >
 > 3. **事务回滚**
 >
->    `@@AUTOCOMMIT = 0` 时，使用 `ROLLBACK` 命令回滚事务。
+> `@@AUTOCOMMIT = 0` 时，使用 `ROLLBACK` 命令回滚事务。
 
 **事务的实际应用**，让我们再回到银行转账项目：
 
@@ -1973,3 +2088,47 @@ INSERT INTO user VALUES (7, '王小花', 1000);
 此时会发生什么呢？由于现在的隔离级别是 **SERIALIZABLE ( 串行化 )** ，串行化的意思就是：假设把所有的事务都放在一个串行的队列中，那么所有的事务都会按照**固定顺序执行**，执行完一个事务后再继续执行下一个事务的**写入操作** ( **这意味着队列中同时只能执行一个事务的写入操作** ) 。
 
 根据这个解释，小王在插入数据时，会出现等待状态，直到小张执行 `COMMIT` 结束它所处的事务，或者出现等待超时。
+
+
+
+## IN 的用法
+
+IN 运算符用于 WHERE 表达式中，以列表项的形式支持多个选择，语法如下：
+
+```sql
+WHERE column IN (value1,value2,...)
+WHERE column NOT IN (value1,value2,...)
+
+```
+
+当 IN 前面加上 NOT 运算符时，表示与 IN 相反的意思，即不在这些列表项内选择。
+
+**IN使用示例**
+
+选取 uid 为 2、3、5 的用户数据：
+
+```sql
+SELECT * FROM user WHERE uid IN (2,3,5)
+```
+
+返回结果如下
+
+| uid  | username | password                          | email           | regdate    |
+| ---- | -------- | --------------------------------- | --------------- | ---------- |
+| 2    | 小明     | a193686a53e4de85ee3f2ff0576adf01  | xiao@163.com    | 1278063917 |
+| 3    | Jack     | 0193686a35e4de85ee3f2ff0567adf490 | jack@gmail.com  | 1278061380 |
+| 5    | 5idev    | a193686a53e4de85ee3f2ff0576adf01  | 5idev@5idev.com | 1291107029 |
+
+
+
+## HAVING 的用法
+
+
+
+在[SELECT语句](http://www.yiibai.com/mysql/select-statement-query-data.html)中使用`HAVING`子句来指定一组行或聚合的过滤条件。
+
+`HAVING`子句通常与[GROUP BY](http://www.yiibai.com/mysql/group-by.html)子句一起使用，以根据指定的条件过滤分组。如果省略`GROUP BY`子句，则`HAVING`子句的行为与`WHERE`子句类似。
+
+
+
+
